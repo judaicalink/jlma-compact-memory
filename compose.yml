@@ -1,0 +1,36 @@
+# The Compact Memory showcase (https://mannheim.judaicalink.org/compact-memory/). In this directory:
+#   docker compose up -d --build                        the app, on 127.0.0.1:8110
+#   bin/index.sh                                        prepare + Solr index (the jobs run in the same image)
+#   docker compose run --rm app python3 jobs.py dashboard
+services:
+  app:
+    build: .
+    image: judaicalink/jlma-compact-memory:latest
+    restart: unless-stopped
+    user: "${CM_UID:-501}:${CM_GID:-1000}"          # the owner of the data directory
+    environment:
+      JL_BASE: /compact-memory                       # nginx passes the full path on
+      JL_SOLR: http://solr:8983/solr
+      JL_SPARQL: http://fuseki:3030/internal/query
+      CM_CORE: cm_pages
+      CM_DATA: /data
+      CM_STORE: /store
+      CM_BUNDLE: fulltext-2026-10-05-v2
+    volumes:
+      - type: bind                                   # prepared data, dashboard, the input bundle (inputs/)
+        source: ${CM_DATA_DIR:-/data/mannheim/showcases/compact-memory}
+        target: /data
+        bind: { create_host_path: false }
+      - type: bind                                   # the files of the loaded versions, read-only
+        source: ${CM_STORE_DIR:-/data/mannheim/store}
+        target: /store
+        read_only: true
+        bind: { create_host_path: false }
+    ports:
+      - "127.0.0.1:8110:8110"                        # never without 127.0.0.1
+    read_only: true
+    tmpfs: [/tmp]
+    networks: [judaicalink]
+networks:
+  judaicalink:
+    external: true
