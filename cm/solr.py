@@ -61,6 +61,11 @@ def commit(core):
     return _req(f"{core}/update", {"commit": {}}, timeout=3600)
 
 
+def optimize(core):
+    """Merge the index into one segment: smaller and faster to search; for a core that is built once and only read."""
+    return _req(f"{core}/update", {"optimize": {"maxSegments": 1, "waitSearcher": True}}, timeout=7200)
+
+
 def select(core, params, timeout=30):
     p = dict(params)
     p.setdefault("wt", "json")

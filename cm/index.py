@@ -279,6 +279,8 @@ def run(new, core=None, workers=3, verify=True, swap=True):
     log("committed", n, "docs; mentions", dict(total))
     if n != manifest["docs"]:
         sys.exit(f"{new} has {n} documents, the manifest says {manifest['docs']}: not swapped")
+    solr.optimize(new)                  # one segment: 6.8 GB instead of 13 (2026-10-14)
+    log("merged into one segment")
     report = {"core": core, "bundle": config.BUNDLE, "docs": n, "seconds": round(time.time() - t0),
               "built": time.strftime("%Y-%m-%dT%H:%M:%S"), "stats": dict(total)}
     (config.PREPARED / "bundle-journals.json").write_text(json.dumps(journals, ensure_ascii=False), "utf-8")
