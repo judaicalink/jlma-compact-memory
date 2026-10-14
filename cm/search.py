@@ -6,6 +6,7 @@ Parameters (all optional, repeatable where it makes sense):
   occ    occupation label: pages mentioning a person with this occupation (several: all)
   bp     geonames id: pages mentioning a person born there (several: all)
   pl     entity-page number of a place: pages mentioning that place (several: all)
+  bd     decade (1840): pages mentioning a person born in that decade (several: all)
   cls    entity class (person, place, subject): pages mentioning one of them
   j      journal VLID (several: any)
   lang   language (several: any)
@@ -23,7 +24,7 @@ from .solr import quote
 
 ROWS = 20
 MULTI_OR = {"j": "journal", "lang": "lang", "pt": "ptype", "cls": "eclass"}     # any of the selected values
-MULTI_AND = {"e": "ep", "occ": "occ", "bp": "bplace", "pl": "ep_place"}          # all of the selected values
+MULTI_AND = {"e": "ep", "occ": "occ", "bp": "bplace", "pl": "ep_place", "bd": "bdecade"}          # all of the selected values
 SNIPPET = 240
 
 
@@ -31,8 +32,8 @@ def clean(params):
     """The search parameters, checked and bounded."""
     g = lambda k: params.get(k, [])
     out = {"q": (g("q")[:1] or [""])[0].strip()[:500]}
-    for k in ("e", "pl"):
-        out[k] = [x for x in dict.fromkeys(g(k)) if x.isdigit()][:10]
+    for k in ("e", "pl", "bd"):
+        out[k] = [x for x in dict.fromkeys(g(k)) if x.isdigit() and len(x) < 12][:10]
     for k in ("occ", "bp", "j", "lang", "pt", "cls"):
         out[k] = [x[:200] for x in dict.fromkeys(g(k)) if x.strip()][:20]
     for k in ("from", "to"):
@@ -82,11 +83,11 @@ def query(a, rows=ROWS, facets=True, facet_limit=None):
         params.update({
             "facet": "true", "facet.mincount": 1,
             "facet.field": ["{!ex=j}journal", "{!ex=lang}lang", "{!ex=pt}ptype", "{!ex=cls}eclass", "occ", "bplace",
-                            "ep_place", "ep", "{!ex=yr}year"],
+                            "ep_place", "ep", "{!ex=yr}year", "bdecade"],
             "f.journal.facet.limit": lim.get("j", 12), "f.occ.facet.limit": lim.get("occ", 12),
             "f.bplace.facet.limit": lim.get("bp", 12), "f.ep_place.facet.limit": lim.get("pl", 12),
             "f.ep.facet.limit": 16, "f.year.facet.limit": -1, "f.year.facet.sort": "index",
-            "f.ptype.facet.limit": 12,
+            "f.ptype.facet.limit": 12, "f.bdecade.facet.limit": -1, "f.bdecade.facet.sort": "index",
         })
     return solr.select(config.CORE, params)
 

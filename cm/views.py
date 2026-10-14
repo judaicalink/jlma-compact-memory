@@ -70,13 +70,13 @@ def result_item(D, doc, a, hl):
     snip = ""
     if hl.get(vlid, {}).get("text"):
         snip = " … ".join(hl[vlid]["text"])
-    elif "text" in doc:
-        snip = S.mention_snippet(doc.get("text", ""), S.mentions_of(doc), set(a["e"]) | set(a["pl"]))
     ms = S.mentions_of(doc)
+    if not snip and "text" in doc:
+        snip = S.mention_snippet(doc.get("text", ""), ms, set(a["e"]) | set(a["pl"]) | matching(D, ms, a))
     counts = {}
     for m in ms:
         counts[m[0]] = counts.get(m[0], 0) + 1
-    sel = {int(x) for x in a["e"] + a["pl"]}
+    sel = {int(x) for x in a["e"] + a["pl"]} | {int(x) for x in matching(D, ms, a)}
     ents = sorted(counts, key=lambda n: (n not in sel, -counts[n]))[:6]
     chips = "".join(ent_link(D, n, "cm-chip" + (" on" if n in sel else "")) for n in ents)
     more = len(counts) - len(ents)
@@ -90,6 +90,20 @@ def result_item(D, doc, a, hl):
 <p class="cm-snip">{snip}</p>
 {f'<div class="cm-chips">{chips}{f"<span class=jl-meta>+{more}</span>" if more > 0 else ""}</div>' if chips else ''}
 </div></li>"""
+
+
+def matching(D, ms, a):
+    """The entities on a page that satisfy the occupation, birth-place and birth-decade filters (for its snippet)."""
+    if not (a["occ"] or a["bp"] or a.get("bd")):
+        return set()
+    out = set()
+    for m in ms:
+        x = D.entities.get(m[0], {})
+        if (all(o in x.get("occ", []) for o in a["occ"])
+                and all((x.get("bplace") or {}).get("gid") == b for b in a["bp"])
+                and all("by" in x and x["by"] // 10 * 10 == int(d) for d in a.get("bd", []))):
+            out.add(str(m[0]))
+    return out
 
 
 def pager(a, total, rows=S.ROWS, path="/search", extra=None):
@@ -112,7 +126,7 @@ def pager(a, total, rows=S.ROWS, path="/search", extra=None):
 
 
 def base_params(a, **change):
-    p = {"q": a["q"] or None, "e": a["e"], "occ": a["occ"], "bp": a["bp"], "pl": a["pl"], "cls": a["cls"],
+    p = {"q": a["q"] or None, "e": a["e"], "occ": a["occ"], "bp": a["bp"], "pl": a["pl"], "bd": a["bd"], "cls": a["cls"],
          "j": a["j"], "lang": a["lang"], "pt": a["pt"], "from_": a["from"], "to": a["to"],
          "sort": a["sort"] if a["sort"] != ("rel" if a["q"] else "date") else None}
     p.update(change)
@@ -235,6 +249,8 @@ def search_view(D, params):
                     more=None if a["all"] == "occ" or len(F("occ")) < 12 else more("occ")),
         facet_block("… person born in", F("bplace"), "bp", a, D.place_name,
                     more=None if a["all"] == "bp" or len(F("bplace")) < 12 else more("bp")),
+        facet_block("… person born in the decade", [(v, c) for v, c in F("bdecade") if 1500 <= int(v) <= 1950], "bd", a,
+                    lambda v: f"{v}s", open_=bool(a["bd"])),
         facet_block("… place", F("ep_place"), "pl", a, lambda v: D.entities.get(int(v), {}).get("label", v),
                     more=None if a["all"] == "pl" or len(F("ep_place")) < 12 else more("pl")),
     ])
@@ -269,6 +285,7 @@ def search_form(D, a):
     for k, lab in (("e", lambda v: D.entities.get(int(v), {}).get("label", v)),
                    ("pl", lambda v: "place: " + D.entities.get(int(v), {}).get("label", v)),
                    ("occ", lambda v: "occupation: " + v), ("bp", lambda v: "born in: " + D.place_name(v)),
+                   ("bd", lambda v: f"born in the {v}s"),
                    ("cls", lambda v: "mentions a " + CLASS_NAMES.get(v, v).lower()),
                    ("j", lambda v: journal_title(D, v)), ("lang", str), ("pt", str)):
         for v in a[k]:
@@ -278,7 +295,7 @@ def search_form(D, a):
         chips.append(f'<a class="cm-filter" href="{u("/search", **base_params(a, from_=None, to=None))}">'
                      f'{a["from"] or "…"}–{a["to"] or "…"} <span aria-hidden="true">×</span></a>')
     hidden = "".join(f'<input type="hidden" name="{k}" value="{esc(v)}">'
-                     for k in ("e", "pl", "occ", "bp", "cls", "j", "lang", "pt") for v in a[k])
+                     for k in ("e", "pl", "occ", "bp", "bd", "cls", "j", "lang", "pt") for v in a[k])
     return f"""<form class="cm-form" action="{u("/search")}" role="search">
 <div class="cm-form-row">
 <input type="search" name="q" value="{esc(a["q"])}" placeholder="Words in the full text" aria-label="Full-text search">
@@ -517,7 +534,7 @@ def journals_view(D):
     counts = dict(S.pairs(solr.select(config.CORE, {"q": "*:*", "rows": 0, "facet": "true", "facet.field": "journal",
                                                     "facet.limit": -1})["facet_counts"]["facet_fields"]["journal"]))
     rows = []
-    for jid, j in sorted(D.journals.items(), key=lambda kv: kv[1].get("title", "").lower()):
+    for jid, j in sorted(D.journals.items(), key=lambda kv: re.sub(r"^[\W_]+", "", kv[1].get("title", "")).lower()):
         n = counts.get(jid, 0)
         rows.append(f"""<tr data-s="{esc((j.get('title', '') + ' ' + ' '.join(j.get('place', []))).lower())}"{' class="cm-empty"' if not n else ''}>
 <td><a href="{u(f"/journal/{jid}")}">{esc(j.get("title"))}</a>{f'<div class="jl-meta">{esc(j["subtitle"])}</div>' if j.get("subtitle") else ''}</td>
@@ -567,7 +584,7 @@ def journal_view(D, jid):
     if j.get("langNames"):
         facts.append(("Language", ", ".join(j["langNames"])))
     if j.get("issued"):
-        facts.append(("Digitised", j["issued"]))
+        facts.append(("Issued", j["issued"]))
     qj = (JLP + "SELECT ?pages ?ocr WHERE {\n"
           f"  <{cm_iri(jid)}> jl:indexedPages ?pages .\n  OPTIONAL {{ <{cm_iri(jid)}> jl:meanOcrKnownWordShare ?ocr }}\n}}")
     facts.append(("Pages", f'{fmt(total)} with full text here' +
