@@ -1,0 +1,529 @@
+<div class="d">
+<header class="d-head">
+  <div class="d-eyebrow">Compact Memory · bundle <span id="d-bundle"></span> · made <span id="d-built"></span></div>
+  <h1>Compact Memory in figures</h1>
+  <p class="jl-lead">The Jewish periodicals digitised by the UB Frankfurt, page by page: what the full text contains, how readable the OCR is,
+  where the source data has gaps, and how the pages are linked into the JudaicaLink knowledge graph.</p>
+  <div class="d-stats" id="d-stats"></div>
+</header>
+
+<nav class="d-jump" aria-label="Sections">
+  <a href="#time">Over time</a><a href="#graph">In the graph</a><a href="#journals">Journals</a><a href="#contents">Contents</a><a href="#quality">OCR quality</a><a href="#issues">Data issues</a><a href="#queries">Queries</a>
+</nav>
+
+<section id="time">
+  <div class="d-sh"><h2>Pages over time</h2>
+    <p>Pages with full text per year of issue. Hover a year to see which journals make up the volume and how readable the OCR is.</p></div>
+  <div class="d-panel">
+    <div class="d-pt"><h3>Pages per year</h3><span class="d-hint" id="time-hint"></span></div>
+    <svg class="d-chart" id="chart-years" role="img" aria-label="Pages per year"></svg>
+    <div class="d-pt"><h3>Average OCR quality per year</h3><span class="d-hint">share of known words (cm-ocr-quality); years with at least 50 pages</span></div>
+    <svg class="d-chart" id="chart-qyear" role="img" aria-label="Average OCR quality per year"></svg>
+    <details><summary>Show the numbers as a table</summary><div class="d-tw" style="max-height:320px"><table class="d-ytable" id="year-table"></table></div></details>
+  </div>
+</section>
+
+<section id="graph">
+  <div class="d-sh"><h2>Compact Memory in the graph</h2>
+    <p>The pages, issues and journals are records of the JudaicaLink graph (dataset compact-memory). In 2021, TagMe linked mentions on the pages to entities
+    (cm-tagme); each entity is represented by an entity page. Every number here is a SPARQL query on the platform's endpoint: follow “query” to run it.</p></div>
+  <div class="d-panel"><div class="d-kpis" id="g-kpis"></div></div>
+  <div class="d-panel">
+    <div class="d-pt"><h3>Share of pages with a linked entity, per year</h3><span class="d-hint" id="g-share-hint"></span></div>
+    <svg class="d-chart" id="chart-share" role="img" aria-label="Share of pages with linked entities per year"></svg>
+  </div>
+  <div class="d-grid2">
+    <div class="d-panel"><div class="d-pt"><h3>Entities on most pages</h3><span id="g-top-q"></span></div><div class="d-blist" id="g-top"></div></div>
+    <div class="d-panel"><div class="d-pt"><h3>Journals by linked share</h3><span id="g-jl-q"></span></div>
+      <p class="d-hint">Pages with at least one mention / pages of the journal; journals with 1,000 pages or more.</p>
+      <div class="d-blist" id="g-jl"></div>
+      <details><summary>The journals with the lowest share</summary><div class="d-blist" id="g-jl-low" style="margin-top:8px"></div></details></div>
+  </div>
+</section>
+
+<section id="journals">
+  <div class="d-sh"><h2>Journals</h2>
+    <p>The 40 largest journals by decade, then every journal of the catalogue. Select a journal for its profile and a sample page.</p></div>
+  <div class="d-panel">
+    <div class="d-pt"><h3>The 40 largest journals, pages per decade</h3><div class="d-legend" id="heat-legend"></div></div>
+    <div class="d-heatwrap"><table class="d-heat" id="heat"></table></div>
+  </div>
+  <div class="d-panel">
+    <div class="d-controls">
+      <input id="jq" type="search" placeholder="Search title, place or VLID" aria-label="Search journals">
+      <select id="lang-filter" aria-label="Filter by language"></select>
+      <select id="state-filter" aria-label="Filter by state">
+        <option value="">All journals</option><option value="lowq">Low OCR quality</option><option value="gaps">Pages dropped</option>
+        <option value="none">No full text</option><option value="dates">Date problems</option>
+      </select>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="d-tw">
+      <table class="d-jt" id="jtable"><thead><tr>
+        <th data-k="title"><button>Journal</button></th><th data-k="lang"><button>Language</button></th>
+        <th data-k="first" class="r"><button>Years</button></th><th data-k="pages" class="r" aria-sort="descending"><button>Pages</button></th>
+        <th data-k="q"><button>OCR quality</button></th><th data-k="complete" class="r"><button>With text</button></th><th>Notes</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <div class="d-panel" id="detail" aria-live="polite"></div>
+</section>
+
+<section id="contents">
+  <div class="d-sh"><h2>What the pages are</h2>
+    <p>Language comes from the journal's catalogue record, the unit from the node a page hangs under in the Visual Library (issue, article, volume).</p></div>
+  <div class="d-grid2">
+    <div class="d-panel"><h3>Language of the journal</h3><div class="d-blist" id="langs"></div></div>
+    <div class="d-panel"><h3>Unit the page belongs to</h3><div class="d-blist" id="units"></div></div>
+  </div>
+</section>
+
+<section id="quality">
+  <div class="d-sh"><h2>OCR quality</h2><p id="quality-intro"></p></div>
+  <div class="d-grid2">
+    <div class="d-panel"><div class="d-pt"><h3>Pages by share of known words</h3><span id="q-hist-q"></span></div>
+      <svg class="d-chart" id="chart-qhist" role="img" aria-label="Distribution of OCR quality"></svg></div>
+    <div class="d-panel"><div class="d-pt"><h3>Journals with the weakest OCR</h3><span id="q-worst-q"></span></div>
+      <p class="d-hint">At least 500 pages. Hebrew, Yiddish and Russian score lower partly because the word list is mostly German.</p>
+      <div class="d-blist" id="worst"></div></div>
+  </div>
+</section>
+
+<section id="issues">
+  <div class="d-sh"><h2>Data issues</h2>
+    <p>What was left out of the full text and what is wrong in the source metadata. Pages were dropped, not repaired; a fresh export from the UB Frankfurt should fix most of this at the source.</p></div>
+  <div class="d-grid2">
+    <div class="d-panel"><h3>From catalogue to full text</h3><div class="d-blist" id="funnel"></div></div>
+    <div class="d-panel"><h3>Metadata coverage of the pages</h3><div class="d-blist" id="coverage"></div></div>
+  </div>
+  <div class="d-issues" id="issue-cards"></div>
+</section>
+
+<section id="queries">
+  <div class="d-sh"><h2>Queries</h2><p>The SPARQL queries behind the figures, with the time they took on the platform's Fuseki when this page was made.</p></div>
+  <div class="d-panel" id="qlist"></div>
+</section>
+
+<footer class="d-foot">
+  <span>Full text: bundle <code id="foot-bundle"></span></code>, made from the ABBYY OCR and the page table of the 2020 export (<code>CM_Seiten_Metadaten.csv</code>).
+  Graph: the versions loaded on this platform (<span id="foot-versions"></span>).</span>
+  <span>OCR quality = share of a page's words (letters only, 2+ characters) found in a word list made from a sample of the corpus (dataset cm-ocr-quality).</span>
+</footer>
+<div class="d-tip" id="tip" hidden></div>
+</div>
+
+<script type="application/json" id="d-data">__DATA__</script>
+<script>
+(() => {
+"use strict";
+const D = JSON.parse(document.getElementById("d-data").textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const BASE = D.base;
+const fmt = n => n == null ? "–" : Number(n).toLocaleString("en-US");
+const compact = n => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e8 ? 0 : 1) + "M" : n >= 1e4 ? Math.round(n / 1e3) + "K" : fmt(n);
+const pct = (x, d = 0) => x == null ? "–" : (x * 100).toFixed(d) + "%";
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const VL = "https://sammlungen.ub.uni-frankfurt.de/cm/periodical/";
+const Q = k => D.graph[k] ? `<a class="jl-query" href="${esc(D.graph[k].href)}" title="${esc(D.graph[k].title)}">query</a>` : "";
+const rows = k => (D.graph[k] || { rows: [] }).rows;
+const ICON = {
+  warn: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .8 11.6 11H.4z"/></svg>',
+  stop: '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="1" width="10" height="10" rx="2"/></svg>',
+  ok: '<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5"/></svg>',
+  clock: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1a5 5 0 1 0 0 10A5 5 0 0 0 6 1zm.6 5.3V3H5.4v3.8l2.6 1.6.6-1z"/></svg>',
+};
+const LOW_Q = 0.75;
+const VALID = y => y >= 1700 && y <= 2030;
+
+/* ---------- derived ---------- */
+const years = Object.entries(D.years).map(([y, v]) => ({ y: +y, ...v })).sort((a, b) => a.y - b.y);
+const validYears = years.filter(r => VALID(r.y));
+const totalPages = D.manifest.docs;
+const dropped = D.manifest.dropped;
+const droppedTotal = Object.values(dropped).reduce((a, b) => a + b, 0);
+const catalogued = totalPages + (dropped.no_xml || 0) + (dropped.duplicate_xml || 0) + (dropped.no_text || 0);
+const journals = D.journals.map(j => {
+  const ys = Object.entries(j.years).map(([y, n]) => [+y, n]).filter(([y]) => VALID(y));
+  const yrs = ys.map(([y]) => y);
+  const dsum = Object.values(j.dropped).reduce((a, b) => a + b, 0);
+  const isolated = ys.filter(([y]) => yrs.length > 1 && yrs.every(o => o === y || Math.abs(o - y) > 15));
+  const main = ys.filter(([y]) => !isolated.some(([iy]) => iy === y)).map(([y]) => y);
+  return { ...j, ysValid: ys, first: main.length ? Math.min(...main) : null, last: main.length ? Math.max(...main) : null,
+    droppedSum: dsum, complete: (j.pages + dsum) ? j.pages / (j.pages + dsum) : 0, isolated, dateIssue: isolated.length > 0 };
+});
+const byId = Object.fromEntries(journals.map(j => [j.id, j]));
+const withPages = journals.filter(j => j.pages > 0);
+const words = years.reduce((a, r) => a + r.words, 0);
+const coreYears = validYears.filter(r => r.pages >= 50);
+
+/* ---------- tooltip ---------- */
+const tip = $("#tip");
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
+}
+const hideTip = () => { tip.hidden = true; };
+function el(name, attrs, parent) {
+  const e = document.createElementNS(NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+/* ---------- header ---------- */
+$("#d-built").textContent = D.built;
+$("#d-bundle").textContent = D.bundle;
+$("#foot-bundle").textContent = D.bundle;
+$("#foot-versions").innerHTML = Object.entries(D.versions).map(([s, v]) => `<a href="/datasets/${esc(s)}">${esc(s)}</a> ${esc(v)}`).join(", ");
+const span = [coreYears[0].y, coreYears[coreYears.length - 1].y];
+const gPages = +(rows("pages")[0] || {}).pages || null;
+$("#d-stats").innerHTML = [
+  ["hero", "Pages with full text", fmt(totalPages), `${pct(totalPages / catalogued, 1)} of ${fmt(catalogued)} catalogued pages`],
+  ["", "Journals", fmt(withPages.length), `${journals.length - withPages.length} more in the catalogue without full text`],
+  ["", "Words", compact(words), `about ${fmt(Math.round(words / totalPages))} per page`],
+  ["", "Main period", `${span[0]}–${span[1]}`, "years with 50+ pages"],
+  ["", "Pages dropped", fmt(droppedTotal), "no OCR file, duplicates, no text"],
+].map(([c, l, v, s]) => `<div class="d-stat ${c}"><span class="l">${l}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("");
+
+/* ---------- year charts ---------- */
+const EVENTS = [[1933, "1933"], [1938, "Nov. 1938: Jewish press banned"], [1945, "1945"]];
+function yearAxis(svg, W, H, m, x0, x1) {
+  const x = y => m.l + (y - x0) / (x1 - x0 + 1) * (W - m.l - m.r);
+  const stepY = W < 520 ? 50 : 25;
+  for (let y = Math.ceil(x0 / stepY) * stepY; y <= x1; y += stepY)
+    el("text", { x: x(y) + (x(y + 1) - x(y)) / 2, y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = y;
+  return x;
+}
+function topJournalsIn(year, n = 3) {
+  return journals.map(j => [j.title, j.years[year] || 0]).filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, n);
+}
+function yearTip(r) {
+  const tops = topJournalsIn(r.y).map(([t, n]) => `<div class="row"><span class="k">${esc(t.length > 34 ? t.slice(0, 33) + "…" : t)}</span><span>${fmt(n)}</span></div>`).join("");
+  return `<b>${r.y}</b><div class="row"><span class="k">Pages</span><span>${fmt(r.pages)}</span></div>
+    <div class="row"><span class="k">Words</span><span>${compact(r.words)}</span></div>
+    <div class="row"><span class="k">OCR quality</span><span>${pct(r.q)}</span></div>${tops ? `<div style="margin-top:4px" class="k">Largest journals</div>${tops}` : ""}`;
+}
+function hover(svg, W, m, x0, x1, byYear, hl, H, fn) {
+  const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  hit.addEventListener("pointermove", e => {
+    const pt = svg.getBoundingClientRect();
+    const sx = (e.clientX - pt.left) * (W / pt.width);
+    const yr = Math.floor(x0 + (sx - m.l) / ((W - m.l - m.r) / (x1 - x0 + 1)));
+    const r = byYear[yr];
+    if (!r) { hl && hl.setAttribute("visibility", "hidden"); hideTip(); return; }
+    fn(yr, r, e);
+  });
+  hit.addEventListener("pointerleave", () => { hl && hl.setAttribute("visibility", "hidden"); hideTip(); });
+  return hit;
+}
+function drawYears() {
+  const svg = $("#chart-years"); svg.innerHTML = "";
+  const W = svg.clientWidth || 900, H = 240, m = { l: 48, r: 8, t: 22, b: 24 };
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const x0 = validYears[0].y, x1 = validYears[validYears.length - 1].y;
+  const max = Math.max(...validYears.map(r => r.pages));
+  const step = max > 8000 ? 2500 : 1000, top = Math.ceil(max / step) * step;
+  const y = v => m.t + (1 - v / top) * (H - m.t - m.b);
+  for (let v = 0; v <= top; v += step) {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v ? "gridline" : "baseline" }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v);
+  }
+  const x = yearAxis(svg, W, H, m, x0, x1);
+  const bw = Math.max(1, (x(x0 + 1) - x(x0)) - 1);
+  const hl = el("rect", { class: "hl", y: m.t, height: H - m.t - m.b, width: bw + 2, visibility: "hidden" }, svg);
+  for (const r of validYears) {
+    const h = Math.max(1, y(0) - y(r.pages));
+    el("rect", { class: "bar", x: x(r.y), y: y(0) - h, width: bw, height: h }, svg);
+  }
+  if (W > 600) for (const [ey, label] of EVENTS) {
+    if (ey < x0 || ey > x1) continue;
+    const g = el("g", { class: "event" }, svg), ex = x(ey) + bw / 2;
+    el("line", { x1: ex, x2: ex, y1: m.t - 4, y2: y(0) }, g);
+    const t = el("text", { x: ey === 1933 ? ex - 4 : ex + 4, y: ey === 1945 ? m.t + 8 : m.t - 8, "text-anchor": ey === 1933 ? "end" : "start" }, g);
+    t.textContent = label;
+  }
+  const byYear = Object.fromEntries(validYears.map(r => [r.y, r]));
+  hover(svg, W, m, x0, x1, byYear, hl, H, (yr, r, e) => {
+    hl.setAttribute("x", x(yr) - 1); hl.setAttribute("visibility", "visible"); showTip(yearTip(r), e.clientX, e.clientY);
+  });
+  $("#time-hint").textContent = `${x0}–${x1}`;
+}
+function lineChart(svgSel, pts, x0, x1, lo, hi, ticks, tipFn) {
+  const svg = $(svgSel); svg.innerHTML = "";
+  const W = svg.clientWidth || 900, H = 160, m = { l: 48, r: 8, t: 10, b: 24 };
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const y = v => m.t + (1 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo)) * (H - m.t - m.b);
+  ticks.forEach((v, i) => {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: i ? "gridline" : "baseline" }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = pct(v);
+  });
+  const x = yearAxis(svg, W, H, m, x0, x1);
+  const half = (x(x0 + 1) - x(x0)) / 2;
+  const P = pts.map(r => [x(r.y) + half, y(r.v), r]);
+  let d = "", prev = null;
+  for (const [px, py, r] of P) { d += (prev !== null && r.y - prev === 1 ? "L" : "M") + px.toFixed(1) + " " + py.toFixed(1); prev = r.y; }
+  el("path", { d, class: "qline" }, svg);
+  const cross = el("line", { class: "cross", y1: m.t, y2: H - m.b, visibility: "hidden" }, svg);
+  const dot = el("circle", { r: 4.5, class: "dot", visibility: "hidden" }, svg);
+  const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  hit.addEventListener("pointermove", e => {
+    const pt = svg.getBoundingClientRect(), sx = (e.clientX - pt.left) * (W / pt.width);
+    let best = null;
+    for (const p of P) if (!best || Math.abs(p[0] - sx) < Math.abs(best[0] - sx)) best = p;
+    if (!best) return;
+    cross.setAttribute("x1", best[0]); cross.setAttribute("x2", best[0]); cross.setAttribute("visibility", "visible");
+    dot.setAttribute("cx", best[0]); dot.setAttribute("cy", best[1]); dot.setAttribute("visibility", "visible");
+    showTip(tipFn(best[2]), e.clientX, e.clientY);
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); hideTip(); });
+}
+function drawQualityYears() {
+  const x0 = validYears[0].y, x1 = validYears[validYears.length - 1].y;
+  lineChart("#chart-qyear", coreYears.filter(r => r.q != null).map(r => ({ y: r.y, v: r.q, r })), x0, x1, 0.5, 1, [0.5, 0.75, 1], p => yearTip(p.r));
+}
+$("#year-table").innerHTML = "<thead><tr><th>Year</th><th>Pages</th><th>Words</th><th>OCR quality</th></tr></thead><tbody>" +
+  years.map(r => `<tr><td>${r.y}</td><td>${fmt(r.pages)}</td><td>${fmt(r.words)}</td><td>${pct(r.q, 1)}</td></tr>`).join("") + "</tbody>";
+
+/* ---------- the graph ---------- */
+const g1 = rows("mentions")[0] || {}, gl = rows("linked_pages")[0] || {}, gj = rows("journals")[0] || {};
+const cls = rows("classes").map(r => [r.class.replace(/^.*[\/#]/, ""), +r.entities]);
+const clsName = { Person: "persons", Place: "places", Subject: "subjects", Work: "works", Organization: "organisations" };
+$("#g-kpis").innerHTML = [
+  [fmt(gPages), "pages in the graph", Q("pages")],
+  [fmt(+gj.journals), `journals in the catalogue, ${fmt(+gj.withPages)} with pages`, Q("journals")],
+  [fmt(+g1.mentions), "entity mentions (TagMe, 2021)", Q("mentions")],
+  [fmt(+gl.pages), `pages with a mention (${pct(+gl.pages / gPages)})`, Q("linked_pages")],
+  [fmt(+g1.entities), "entities mentioned: " + cls.filter(c => c[0] !== "Person" || true).map(([c, n]) => `${fmt(n)} ${clsName[c] || c}`).join(", "), Q("mentions") + " " + Q("classes")],
+].map(([v, l, q]) => `<div class="d-kpi"><span class="v">${v}</span><span class="l">${l} ${q}</span></div>`).join("");
+const py = Object.fromEntries(rows("pages_year").map(r => [+r.year, +r.pages]));
+const ly = Object.fromEntries(rows("linked_year").map(r => [+r.year, +r.linked]));
+const sharePts = Object.keys(py).map(Number).filter(y => VALID(y) && py[y] >= 500).sort((a, b) => a - b).map(y => ({ y, v: (ly[y] || 0) / py[y], pages: py[y], linked: ly[y] || 0 }));
+$("#g-share-hint").innerHTML = `pages with at least one mention / pages, by the date of their issue; years with 500+ pages · ${Q("pages_year")} ${Q("linked_year")}`;
+function drawShare() {
+  if (!sharePts.length) return;
+  const max = Math.max(...sharePts.map(p => p.v));
+  const hi = Math.min(1, Math.ceil(max * 10) / 10);
+  lineChart("#chart-share", sharePts, sharePts[0].y, sharePts[sharePts.length - 1].y, 0, hi, [0, hi / 2, hi],
+    p => `<b>${p.y}</b><div class="row"><span class="k">Pages</span><span>${fmt(p.pages)}</span></div><div class="row"><span class="k">With a mention</span><span>${fmt(p.linked)} (${pct(p.v)})</span></div>`);
+}
+function blist(target, items, scaleMax, fmtVal) {
+  const max = scaleMax || Math.max(...items.map(i => i[1]));
+  $(target).innerHTML = items.map(([name, v, note, href]) => `<div class="d-brow" title="${esc(name)}${note ? " – " + esc(note) : ""}">
+    <span class="name">${href ? `<a href="${esc(href)}">${esc(name)}</a>` : esc(name)}</span><span class="track"><span class="fill" style="width:${(v / max) * 100}%"></span></span>
+    <span class="val">${fmtVal ? fmtVal(v) : fmt(v)}</span></div>`).join("");
+}
+$("#g-top-q").innerHTML = Q("top_entities");
+blist("#g-top", rows("top_entities").slice(0, 20).map(r => [r.label || decodeURIComponent(r.entity.replace(/^.*\//, "")).replace(/_/g, " "), +r.pages,
+  `${fmt(+r.mentions)} mentions in ${r.journals} journals, ${r.first}–${r.last}`, BASE + "/resolve?iri=" + encodeURIComponent(r.entity)]));
+$("#g-jl-q").innerHTML = Q("linked_journal");
+const jl = rows("linked_journal").filter(r => +r.pages >= 1000).map(r => ({ id: r.journal.replace(/^.*\//, ""), t: r.title || byId[r.journal.replace(/^.*\//, "")]?.title || r.journal, s: +r.linked / +r.pages, n: +r.linked, p: +r.pages }));
+jl.sort((a, b) => b.s - a.s);
+blist("#g-jl", jl.slice(0, 12).map(j => [j.t, j.s, `${fmt(j.n)} of ${fmt(j.p)} pages`, BASE + "/journal/" + j.id]), 1, v => pct(v));
+blist("#g-jl-low", jl.slice(-10).reverse().map(j => [j.t, j.s, `${fmt(j.n)} of ${fmt(j.p)} pages`, BASE + "/journal/" + j.id]), 1, v => pct(v, 1));
+
+/* ---------- heatmap ---------- */
+function heatColor(v, max) {
+  if (!v) return "var(--h0)";
+  const t = Math.log(v) / Math.log(max);
+  return `var(--h${Math.min(7, 1 + Math.floor(t * 7))})`;
+}
+function drawHeat() {
+  const top = [...withPages].sort((a, b) => b.pages - a.pages).slice(0, 40).sort((a, b) => (a.first ?? 9999) - (b.first ?? 9999));
+  const decs = []; for (let d = 1760; d <= 2010; d += 10) decs.push(d);
+  const cell = j => { const c = {}; for (const [y, n] of j.ysValid) { const d = Math.floor(y / 10) * 10; c[d] = (c[d] || 0) + n; } return c; };
+  const cells = top.map(cell);
+  const max = Math.max(...cells.flatMap(c => Object.values(c)));
+  const used = decs.filter(d => cells.some(c => c[d]));
+  let h = "<thead><tr><th></th>" + used.map(d => `<th>${d % 50 === 0 ? d : "’" + String(d).slice(2)}</th>`).join("") + "</tr></thead><tbody>";
+  top.forEach((j, i) => {
+    h += `<tr class="click" data-id="${esc(j.id)}"><th class="jt" title="${esc(j.title)}" tabindex="0">${esc(j.title)}</th>` +
+      used.map(d => `<td data-d="${d}" data-n="${cells[i][d] || 0}" style="background:${heatColor(cells[i][d], max)}"></td>`).join("") + "</tr>";
+  });
+  const t = $("#heat"); t.innerHTML = h + "</tbody>";
+  t.onmousemove = e => {
+    const td = e.target.closest("td"); if (!td) { hideTip(); return; }
+    const j = byId[td.parentElement.dataset.id];
+    showTip(`<b>${esc(j.title)}</b><div class="row"><span class="k">${td.dataset.d}s</span><span>${fmt(+td.dataset.n)} pages</span></div>`, e.clientX, e.clientY);
+  };
+  t.onmouseleave = hideTip;
+  t.onclick = e => { const tr = e.target.closest("tr.click"); if (tr) select(tr.dataset.id, true); };
+  t.onkeydown = e => { if (e.key === "Enter") { const tr = e.target.closest("tr.click"); if (tr) select(tr.dataset.id, true); } };
+  const steps = [1, 10, 100, 1000, 10000].filter(v => v <= max);
+  $("#heat-legend").innerHTML = "Pages per decade " + steps.map(v => `<i style="background:${heatColor(v, max)}"></i>${compact(v)}`).join(" ") + ` <i style="background:var(--h7)"></i>${compact(max)}`;
+}
+
+/* ---------- table ---------- */
+const langs = [...new Set(journals.map(j => j.lang).filter(Boolean))].sort();
+$("#lang-filter").innerHTML = `<option value="">All languages</option>` + langs.map(l => `<option>${esc(l)}</option>`).join("");
+let sortKey = "pages", sortDir = -1, selected = null;
+function notes(j) {
+  const c = [];
+  if (!j.pages) c.push(`<span class="d-chip critical">${ICON.stop}No full text</span>`);
+  if (j.pages && j.q != null && j.q < LOW_Q) c.push(`<span class="d-chip serious">${ICON.warn}Low OCR</span>`);
+  if (j.droppedSum && j.pages) c.push(`<span class="d-chip warning">${ICON.warn}${fmt(j.droppedSum)} dropped</span>`);
+  if (j.dateIssue) c.push(`<span class="d-chip warning">${ICON.clock}Date problems</span>`);
+  return `<div class="d-chips">${c.join("")}</div>`;
+}
+function tableRows() {
+  const q = $("#jq").value.trim().toLowerCase(), lf = $("#lang-filter").value, sf = $("#state-filter").value;
+  let r = journals.filter(j => (!q || j.title.toLowerCase().includes(q) || j.id.includes(q) || (j.place || "").toLowerCase().includes(q)) && (!lf || j.lang === lf));
+  if (sf === "lowq") r = r.filter(j => j.pages && j.q != null && j.q < LOW_Q);
+  if (sf === "gaps") r = r.filter(j => j.droppedSum > 0);
+  if (sf === "none") r = r.filter(j => !j.pages);
+  if (sf === "dates") r = r.filter(j => j.dateIssue);
+  const v = j => sortKey === "title" ? j.title.toLowerCase() : sortKey === "lang" ? j.lang : (j[sortKey] ?? -1);
+  return r.sort((a, b) => (v(a) > v(b) ? 1 : v(a) < v(b) ? -1 : 0) * sortDir);
+}
+function drawTable() {
+  const r = tableRows();
+  $("#count").textContent = `${r.length} of ${journals.length} journals`;
+  $("#jtable tbody").innerHTML = r.map(j => `<tr data-id="${esc(j.id)}" tabindex="0" aria-selected="${j.id === selected}">
+    <td>${esc(j.title)}<div style="color:var(--d-ink2);font-size:.72rem">${esc(j.place || "")} · ${esc(j.id)}</div></td>
+    <td>${esc(j.lang || "–")}</td>
+    <td class="r">${j.first ? (j.first === j.last ? j.first : j.first + "–" + j.last) : "–"}</td>
+    <td class="r">${fmt(j.pages)}</td>
+    <td>${j.pages && j.q != null ? `<span class="d-meter"><span class="m"><i style="width:${Math.max(0, (j.q - 0.3) / 0.7) * 100}%"></i></span><span class="num">${pct(j.q)}</span></span>` : "–"}</td>
+    <td class="r">${pct(j.complete)}</td><td>${notes(j)}</td></tr>`).join("");
+}
+document.querySelectorAll("#jtable th[data-k]").forEach(th => th.querySelector("button").addEventListener("click", () => {
+  const k = th.dataset.k;
+  sortDir = sortKey === k ? -sortDir : (k === "title" || k === "lang" || k === "first" ? 1 : -1); sortKey = k;
+  document.querySelectorAll("#jtable th").forEach(t => t.removeAttribute("aria-sort"));
+  th.setAttribute("aria-sort", sortDir > 0 ? "ascending" : "descending");
+  drawTable();
+}));
+["#jq", "#lang-filter", "#state-filter"].forEach(s => $(s).addEventListener("input", drawTable));
+$("#jtable tbody").addEventListener("click", e => { const tr = e.target.closest("tr"); if (tr) select(tr.dataset.id); });
+$("#jtable tbody").addEventListener("keydown", e => { if (e.key === "Enter") { const tr = e.target.closest("tr"); if (tr) select(tr.dataset.id); } });
+
+/* ---------- detail ---------- */
+function miniYears(j) {
+  if (!j.ysValid.length) return "";
+  const W = 460, H = 90, m = { l: 34, r: 4, t: 8, b: 18 };
+  const x0 = Math.min(...j.ysValid.map(r => r[0])), x1 = Math.max(...j.ysValid.map(r => r[0]));
+  const max = Math.max(...j.ysValid.map(r => r[1]));
+  const x = y => m.l + (y - x0) / (x1 - x0 + 1) * (W - m.l - m.r);
+  const y = v => m.t + (1 - v / max) * (H - m.t - m.b);
+  const bw = Math.max(1, x(x0 + 1) - x(x0) - 1);
+  let s = `<svg class="d-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pages per year">`;
+  s += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/><line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(max)}" y2="${y(max)}"/>`;
+  s += `<text x="${m.l - 6}" y="${y(max) + 4}" text-anchor="end">${compact(max)}</text><text x="${m.l - 6}" y="${y(0) + 4}" text-anchor="end">0</text>`;
+  for (const [yr, n] of j.ysValid) { const h = Math.max(1, y(0) - y(n)); s += `<rect class="bar" x="${x(yr)}" y="${y(0) - h}" width="${bw}" height="${h}"><title>${yr}: ${fmt(n)} pages</title></rect>`; }
+  return s + `<text x="${m.l}" y="${H - 4}">${x0}</text><text x="${W - m.r}" y="${H - 4}" text-anchor="end">${x1}</text></svg>`;
+}
+function miniHist(j) {
+  const W = 300, H = 80, m = { l: 4, r: 4, t: 6, b: 18 }, max = Math.max(...j.qhist, 1), bw = (W - m.l - m.r) / 10;
+  let s = `<svg class="d-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="OCR quality of the pages"><line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/>`;
+  j.qhist.forEach((n, i) => { const h = n ? Math.max(1, (H - m.t - m.b) * n / max) : 0; s += `<rect class="bar" x="${m.l + i * bw + 1}" y="${H - m.b - h}" width="${bw - 2}" height="${h}" rx="2"><title>${i * 10}–${i * 10 + 10}%: ${fmt(n)} pages</title></rect>`; });
+  return s + `<text x="${m.l}" y="${H - 4}">0%</text><text x="${W / 2}" y="${H - 4}" text-anchor="middle">50%</text><text x="${W - m.r}" y="${H - 4}" text-anchor="end">100%</text></svg>`;
+}
+const REASON = { no_xml: "No OCR file", duplicate_xml: "Two OCR files for one page", no_text: "Page without text", no_metadata: "No catalogue record", bad_xml_name: "Bad file name" };
+function select(id, scroll) {
+  selected = id; const j = byId[id];
+  document.querySelectorAll("#jtable tbody tr").forEach(tr => tr.setAttribute("aria-selected", tr.dataset.id === id));
+  const drop = Object.entries(j.dropped).map(([k, n]) => `${REASON[k] || k}: ${fmt(n)}`).join(", ") || "none";
+  const odd = j.isolated.map(([y, n]) => `${y} (${fmt(n)} p., isolated)`).join(", ");
+  const s = j.sample;
+  $("#detail").innerHTML = `<div class="d-detail">
+    <div style="display:grid;gap:12px;min-width:0">
+      <div><div class="d-eyebrow">Journal · VLID ${esc(j.id)}</div><h3><a href="${BASE}/journal/${esc(j.id)}">${esc(j.title)}</a></h3></div>
+      <dl class="d-kv">
+        <dt>Pages with text</dt><dd>${fmt(j.pages)} of ${fmt(j.pages + j.droppedSum)} (${pct(j.complete, 1)})</dd>
+        <dt>Years</dt><dd>${j.first ? j.first + "–" + j.last : "–"}</dd>
+        <dt>Place</dt><dd>${esc(j.place || "–")}</dd>
+        <dt>Language</dt><dd>${esc(j.lang || "–")}</dd>
+        <dt>Words</dt><dd>${fmt(j.words)}${j.pages ? ` (${fmt(Math.round(j.words / j.pages))} per page)` : ""}</dd>
+        <dt>Metadata</dt><dd>issue ${pct(j.cov.heft)} · article ${pct(j.cov.aufsatz)} · volume ${pct(j.cov.volume)} · page label ${pct(j.cov.page_label)}</dd>
+        <dt>Dropped</dt><dd>${drop}</dd>
+        ${odd ? `<dt>Date problems</dt><dd>${odd}</dd>` : ""}
+      </dl>
+      ${j.pages ? `<div><span style="font-size:.84rem;font-weight:550">Pages per year</span>${miniYears(j)}</div>` : ""}
+      <span><a href="${BASE}/journal/${esc(j.id)}">Journal view</a> · <a href="${VL}titleinfo/${esc(j.id)}">Visual Library</a></span>
+    </div>
+    <div style="display:grid;gap:12px;align-content:start;min-width:0">
+      ${j.pages ? `<div><div class="d-pt"><span style="font-size:.84rem;font-weight:550">OCR quality of its pages</span><span class="d-hint">mean ${pct(j.q)}</span></div>${miniHist(j)}</div>` : ""}
+      ${s ? `<div style="display:grid;gap:6px"><span style="font-size:.84rem;font-weight:550">A page from the middle of the run</span>
+        <blockquote class="d-excerpt">${esc(s.text)}…</blockquote>
+        <span class="d-hint">${esc(s.heft || "")}${s.date ? " · " + s.date : ""}${s.q != null ? " · quality " + pct(s.q) : ""} · <a href="${BASE}/page/${esc(s.id)}">page ${esc(s.id)}</a></span></div>`
+        : `<p class="d-hint">No page of this journal has full text.</p>`}
+    </div></div>`;
+  if (scroll) $("#detail").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+}
+
+/* ---------- contents ---------- */
+const langTotals = {};
+for (const r of years) for (const [l, n] of Object.entries(r.lang)) langTotals[l] = (langTotals[l] || 0) + n;
+const langItems = Object.entries(langTotals).sort((a, b) => b[1] - a[1]);
+blist("#langs", langItems.slice(0, 10).concat(langItems.length > 10 ? [["other combinations", langItems.slice(10).reduce((a, r) => a + r[1], 0)]] : []));
+const unitItems = Object.entries(D.parent_types).sort((a, b) => b[1] - a[1]);
+blist("#units", unitItems.slice(0, 8).concat([["other", unitItems.slice(8).reduce((a, r) => a + r[1], 0)]]));
+
+/* ---------- quality ---------- */
+const qhist = Array(20).fill(0);
+for (const r of rows("ocr_hist")) qhist[Math.max(0, Math.min(19, Math.round(+r.bin)))] += +r.pages;
+const qTotal = qhist.reduce((a, b) => a + b, 0) || 1;
+$("#q-hist-q").innerHTML = Q("ocr_hist");
+function drawQHist() {
+  const svg = $("#chart-qhist"); svg.innerHTML = "";
+  const W = svg.clientWidth || 480, H = 220, m = { l: 48, r: 8, t: 10, b: 24 };
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  const max = Math.max(...qhist, 1), step = 100000, top = Math.ceil(max / step) * step;
+  const y = v => m.t + (1 - v / top) * (H - m.t - m.b);
+  for (let v = 0; v <= top; v += step) {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v ? "gridline" : "baseline" }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = compact(v);
+  }
+  const bw = (W - m.l - m.r) / 20;
+  qhist.forEach((n, i) => {
+    const h = n ? Math.max(1, y(0) - y(n)) : 0;
+    el("rect", { class: "bar" + (i * 5 < LOW_Q * 100 ? " dim" : ""), x: m.l + i * bw + 1, y: y(0) - h, width: bw - 2, height: h, rx: 2 }, svg);
+    const hit = el("rect", { x: m.l + i * bw, y: m.t, width: bw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointermove", e => showTip(`<b>${i * 5}–${i * 5 + 5}% known words</b><div class="row"><span class="k">Pages</span><span>${fmt(n)}</span></div><div class="row"><span class="k">Share</span><span>${pct(n / qTotal, 1)}</span></div>`, e.clientX, e.clientY));
+    hit.addEventListener("pointerleave", hideTip);
+  });
+  for (const v of [0, 25, 50, 75, 100]) el("text", { x: m.l + (v / 5) * bw, y: H - 6, "text-anchor": v === 0 ? "start" : v === 100 ? "end" : "middle" }, svg).textContent = v + "%";
+}
+const lowPages = qhist.slice(0, LOW_Q * 20).reduce((a, b) => a + b, 0);
+$("#quality-intro").textContent = `Most pages read well: ${pct(1 - lowPages / qTotal)} have at least ${pct(LOW_Q)} known words. The ${fmt(lowPages)} pages below that (lighter bars) are mostly Hebrew, Yiddish or Russian, damaged scans, tables and advertisements.`;
+$("#q-worst-q").innerHTML = Q("ocr_journal");
+const worst = rows("ocr_journal").map(r => ({ id: r.journal.replace(/^.*\//, ""), q: +r.share, t: r.title })).filter(r => byId[r.id] && byId[r.id].pages >= 500).slice(0, 8);
+blist("#worst", worst.map(r => [r.t || byId[r.id].title, r.q, byId[r.id].lang, BASE + "/journal/" + r.id]), 1, v => pct(v));
+
+/* ---------- issues ---------- */
+blist("#funnel", [
+  ["Pages in the catalogue", catalogued], ["no OCR file", dropped.no_xml || 0], ["two OCR files with different text", dropped.duplicate_xml || 0],
+  ["OCR file without catalogue record", dropped.no_metadata || 0], ["page without text", dropped.no_text || 0], ["Pages with full text", totalPages],
+]);
+const covTotal = f => withPages.reduce((a, j) => a + j.cov[f] * j.pages, 0) / totalPages;
+blist("#coverage", [
+  ["Date of issue", years.reduce((a, r) => a + r.pages, 0) / totalPages], ["Journal language", 1 - (langTotals["not recorded"] || 0) / totalPages],
+  ["Issue (Heft)", covTotal("heft")], ["Page label", covTotal("page_label")], ["Article (Aufsatz)", covTotal("aufsatz")], ["Volume (Band)", covTotal("volume")],
+], 1, v => pct(v, 1));
+const isoPages = journals.reduce((a, j) => a + j.isolated.reduce((s, r) => s + r[1], 0), 0);
+const card = (state, icon, label, big, text) => `<div class="d-panel d-issue"><span class="d-badge"><span style="fill:var(--d-${state});display:inline-flex">${icon}</span>${label}</span><span class="big">${big}</span><p>${text}</p></div>`;
+const changes = D.manifest.changes || {};
+const volPages = Math.round(covTotal("volume") * totalPages);
+$("#issue-cards").innerHTML =
+  card("good", ICON.ok, "Volume rebuilt", fmt(volPages) + " pages",
+    `The 2020 export had copied the first row's volume, “8 (1835)”, into 91% of all rows. The volume was rebuilt from the MODS records of the UB Frankfurt for ${fmt(changes["volume: added"] || 0)} pages; ${fmt(totalPages - volPages)} pages have no volume.`) +
+  card("warning", ICON.clock, "Dates to review", fmt(isoPages) + " pages",
+    `${fmt(changes["dateIssued: changed"] || 0)} Hebrew calendar years were converted and ${fmt(changes["dateIssued: removed"] || 0)} impossible dates removed. ${fmt(isoPages)} pages sit in years isolated from the rest of their journal, often typos (listed in date_review.tsv of the bundle). Pages after 1945 are mostly real: post-war periodicals are part of the collection.`) +
+  card("good", ICON.ok, "Placeholder text removed", fmt(changes["page_label: removed"] || 0) + " pages",
+    `The 2020 export wrote the literal text “(null)” into empty fields, mostly page labels. These values are left out, so they no longer show up in result lists.`);
+
+/* ---------- queries ---------- */
+$("#qlist").innerHTML = D.queries.map(q => `<div class="d-q"><div class="d-pt"><b>${esc(q.title)}</b><span class="d-hint">${q.seconds} s · ${fmt(q.rows)} rows · <a href="${esc(q.href)}">open in the editor</a></span></div>
+  <details><summary>Show the query</summary><pre><code>${esc(q.query)}</code></pre></details></div>`).join("");
+
+/* ---------- render ---------- */
+function render() { drawYears(); drawQualityYears(); drawShare(); drawQHist(); }
+drawHeat(); drawTable(); select(journals[0].id); render();
+let rt = null;
+addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+})();
+</script>

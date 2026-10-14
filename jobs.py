@@ -36,7 +36,7 @@ def main():
         index.run(a.new, workers=a.workers, verify=not a.no_verify, swap=not a.no_swap)
     elif a.job == "dashboard":
         from cm import dashboard
-        dashboard.run(sparql=not a.no_sparql)
+        dashboard.run(use_sparql=not a.no_sparql)
     elif a.job == "check":
         from cm import check
         return check.run(a.base)

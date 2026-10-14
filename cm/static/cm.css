@@ -192,3 +192,9 @@ tr.cm-empty td, tr.cm-empty a { color: var(--jl-muted); }
   .cm-bigsearch { flex-wrap: wrap; }
   .cm-versions ul { columns: 1; }
 }
+
+.cm-sidebox > summary { font-weight: 600; cursor: pointer; padding: 8px 12px; border: 1px solid var(--jl-line); border-radius: 6px;
+  list-style: none; }
+.cm-sidebox > summary::after { content: " ▾"; color: var(--jl-muted); }
+.cm-sidebox[open] > summary { margin-bottom: 8px; }
+@media (min-width: 861px) { .cm-sidebox > summary { display: none; } }

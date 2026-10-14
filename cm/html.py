@@ -3,12 +3,16 @@
 Everything a visitor typed goes through esc(): nginx runs server-side includes on these pages, so a typed
 <!--# … --> must never reach the HTML unescaped."""
 
+import hashlib
 import html
 import urllib.parse
+from pathlib import Path
 
 from . import config
 
-STATIC_VERSION = "1"
+# the static files' version in their URLs, so that browsers fetch them again after a change
+STATIC_VERSION = hashlib.sha256(b"".join(f.read_bytes() for f in sorted((Path(__file__).parent / "static").glob("*"))
+                                         if f.is_file())).hexdigest()[:10]
 
 
 def esc(s):
@@ -41,7 +45,7 @@ def cm_iri(local):
     return f"{config.JL_DATA}data/compact-memory/{local}"
 
 
-def sparql_link(query, text="SPARQL"):
+def sparql_link(query, text="query"):
     href = config.SPARQL_EDITOR + "#" + urllib.parse.urlencode({"query": query, "endpoint": "/sparql"},
                                                                quote_via=urllib.parse.quote)
     return f'<a class="jl-query" href="{esc(href)}" title="The query behind this number">{esc(text)}</a>'
@@ -72,7 +76,7 @@ def page(title, body, active=None, q="", wide=False, head="", description=None):
 <meta name="description" content="{esc(desc)}">
 <link rel="stylesheet" href="/kit/1/jl.css">
 <link rel="stylesheet" href="{config.BASE}/static/cm.css?v={STATIC_VERSION}">
-{head}
+{head.replace(".css\"", ".css?v=" + STATIC_VERSION + '"')}
 </head>
 <body>
 <!--# include virtual="/kit/1/header.html" -->

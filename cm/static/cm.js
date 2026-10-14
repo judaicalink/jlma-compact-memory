@@ -65,6 +65,9 @@
     input.addEventListener("focus", () => { if (items.length) render(); });
   });
 
+  // ---------- the filters of the search are open on wide screens, closed on phones
+  if (matchMedia("(min-width: 861px)").matches) document.querySelectorAll("[data-open-wide]").forEach(d => { d.open = true; });
+
   // ---------- table filter: <input data-filter="#table">, rows carry data-s (search text)
   document.querySelectorAll("[data-filter]").forEach(inp => {
     const rows = [...document.querySelectorAll(inp.dataset.filter + " tbody tr")];

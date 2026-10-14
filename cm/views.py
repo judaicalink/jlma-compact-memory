@@ -251,9 +251,9 @@ def search_view(D, params):
     items = "".join(result_item(D, d, a, hl) for d in docs)
     body = f"""{search_form(D, a)}
 <div class="cm-results">
-<aside class="cm-side" aria-label="Filters">{side}</aside>
+<aside class="cm-side" aria-label="Filters"><details class="cm-sidebox" data-open-wide><summary>Filters</summary>{side}</details></aside>
 <div class="cm-list">
-<div class="cm-count"><strong>{fmt(total)}</strong> pages{f" · page {a['p']}" if a['p'] > 1 else ""}<span class="cm-sort">Sort: {sorts}</span></div>
+<div class="cm-count"><span><strong>{fmt(total)}</strong> pages{f" · page {a['p']}" if a['p'] > 1 else ""}</span><span class="cm-sort">Sort: {sorts}</span></div>
 {f'<div class="cm-yearchart"><div class="jl-meta">Pages per year (click a year to narrow down)</div>{bars(years, href=yr_href)}</div>' if len(years) > 1 else ''}
 {f'<div class="cm-cooc"><span class="jl-meta">Most mentioned on these pages:</span> {ents}</div>' if ents else ''}
 <ol class="cm-hits" start="{(a['p'] - 1) * S.ROWS + 1}">{items}</ol>
@@ -354,6 +354,9 @@ def entity_view(D, n):
         presence = (f'<p class="cm-presence">{fmt(pr.get("mentionCount", 0))} mentions on {fmt(pr.get("pageCount", 0))} pages '
                     f'of {fmt(pr.get("journalCount", 0))} journals, {esc(pr.get("firstMentionYear", ""))}–'
                     f'{esc(pr.get("lastMentionYear", ""))} {sparql_link(q_presence)}</p>')
+        if pr.get("pageCount", 0) != total:
+            presence += (f'<p class="jl-meta">Dataset cm-entities counts the pages TagMe annotated in 2021; '
+                         f'{fmt(total)} of them have full text in this index.</p>')
     dl = "".join(f"<dt>{esc(f[0])}</dt><dd>{f[1] if len(f) > 2 else esc(f[1])}</dd>" for f in facts)
     jl = "".join(f'<li><a href="{u("/search", e=n, j=j)}">{esc(journal_title(D, j))}</a> <span class="cm-n">{fmt(c)}</span></li>'
                  for j, c in journals)
