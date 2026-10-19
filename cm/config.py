@@ -27,6 +27,7 @@ DATASETS = {
     "cm-tagme": ["cm_tagme_references.ttl.gz", "cm_tagme_resources.ttl.gz"],
     "cm-entities": ["cm-entities-presence.ttl.gz", "cm-entities-wikidata.ttl.gz"],
     "ep": ["ep.ttl.gz"],
+    "dbpedia": ["dbpedia.ttl.gz"],
     "compact-memory-supp": ["CM_Seiten_Metadaten.csv.gz"],
 }
 

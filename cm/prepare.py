@@ -41,7 +41,9 @@ GEONAMES_RE = re.compile(r"^https?://sws\.geonames\.org/(\d+)/?$")
 ISO639 = "http://id.loc.gov/vocabulary/iso639-2/"
 
 CLASSES = {FOAF + "Person": "person", JL + "Place": "place", JL + "Subject": "subject", JL + "Work": "work",
-           FOAF + "Organization": "organization"}
+           FOAF + "Organization": "organization",   # the classes of ep 2026-10-19 (judaicalink-data 0029):
+           SCHEMA + "Place": "place", SKOS + "Concept": "subject", SCHEMA + "CreativeWork": "work"}
+PLACES = {JL + "Place", SCHEMA + "Place"}
 
 
 def log(*a):
@@ -202,19 +204,34 @@ def read_cm_entities(store, vers):
     return by_entity, wikidata
 
 
-def read_ep(store, vers, tagme_entities):
-    """Two passes over ep.ttl.gz: first which page represents which TagMe entity and the geonames ids of place
-    pages (for birth places), then every fact of the pages that represent TagMe entities."""
+REPS = {JL + "sameAs", JL + "represents"}   # the records of a page: jl:sameAs since ep 2026-10-19 (judaicalink-data 0029)
+
+
+def read_replaced(store, vers):
+    """{record IRI: [current IRIs]} from the dbpedia dataset: the TagMe entities (data/dbpedia/<title>) are replaced by
+    the records per language (data/dbpedia/en/<title>, judaicalink-data decision 0031)."""
+    out = collections.defaultdict(list)
+    if "dbpedia" in vers:
+        for s, p, o in triples(path(store, vers, "dbpedia", "dbpedia.ttl.gz")):
+            if p == DCT + "isReplacedBy":
+                out[s].append(o)
+    return out
+
+
+def read_ep(store, vers, tagme_entities, replaced=None):
+    """Two passes over ep.ttl.gz: first which page represents which TagMe entity (or the record that replaces it) and
+    the geonames ids of place pages (for birth places), then every fact of the pages that represent TagMe entities."""
     f = path(store, vers, "ep", "ep.ttl.gz")
+    current = {n: e for e in tagme_entities for n in (replaced or {}).get(e, ())}
     rep, geo_ep, labels, place_ep = {}, {}, {}, set()
     for s, p, o in triples(f):
-        if p == JL + "represents" and o in tagme_entities:
-            rep.setdefault(o, set()).add(s)
+        if p in REPS and (o in tagme_entities or o in current):
+            rep.setdefault(o if o in tagme_entities else current[o], set()).add(s)
         elif p == OWL_SAME and isinstance(o, str):
             m = GEONAMES_RE.match(o)
             if m:
                 geo_ep.setdefault(m.group(1), set()).add(s)
-        elif p == RDF_TYPE and o == JL + "Place":
+        elif p == RDF_TYPE and o in PLACES:
             place_ep.add(s)
         elif p == SKOS + "prefLabel" and isinstance(o, Lit):
             labels.setdefault(s, o.value)
@@ -355,7 +372,7 @@ def run(store=None, out=None):
     log("references", len(refs), "entities", len(entity_refs))
     presence, wikidata = read_cm_entities(store, vers)
     log("presence", len(presence), "wikidata", len(wikidata))
-    rep, facts, geo_ep, ep_labels = read_ep(store, vers, set(entity_refs))
+    rep, facts, geo_ep, ep_labels = read_ep(store, vers, set(entity_refs), read_replaced(store, vers))
     log("represented", len(rep), "geonames ids with a place page", len(geo_ep))
     entities, places, multi = build_entities(set(entity_refs), rep, facts, geo_ep, ep_labels, presence, wikidata,
                                              journals)

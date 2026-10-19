@@ -48,7 +48,9 @@ QUERIES = {
 }"""),
     "classes": ("The mentioned entities by the class of their entity page", P + """SELECT ?class (COUNT(DISTINCT ?entity) AS ?entities) WHERE {
   ?entity jl:hasReference [] .
-  ?ep jl:represents ?entity ; a ?class .
+  OPTIONAL { ?entity dcterms:isReplacedBy ?cur }   # the TagMe entities replaced by the dbpedia records per language
+  BIND(COALESCE(?cur, ?entity) AS ?r)
+  ?ep jl:sameAs|jl:represents ?r ; a ?class .
   FILTER(?class != jl:EntityPage)
 } GROUP BY ?class ORDER BY DESC(?entities)"""),
     "pages_year": ("Pages per year (date of the issue)", P + """SELECT ?year (COUNT(?page) AS ?pages) WHERE {
